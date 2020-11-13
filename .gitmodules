@@ -1,0 +1,3 @@
+[submodule "Sources/cwavelib"]
+	path = Sources/cwavelib
+	url = https://github.com/rafat/wavelib.git

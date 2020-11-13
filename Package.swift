@@ -13,17 +13,17 @@ let package = Package(
         .target(
             name: "cwavelib",
             exclude: [
-                "test",
-                "unitTests",
+                "wavelib/test",
+                "wavelib/unitTests",
                 "CMakeLists.txt",
-                "COPYRIGHT",
-                "appveyor.yml",
-                "wavelib-doc.pdf",
-                "README.md"
+                "wavelib/COPYRIGHT",
+                "wavelib/appveyor.yml",
+                "wavelib/wavelib-doc.pdf",
+                "wavelib/README.md"
             ],
             cSettings: [
-                .headerSearchPath("src"),
-                .headerSearchPath("header")
+                .headerSearchPath("wavelib/src"),
+                .headerSearchPath("wavelib/header")
             ]
         ),
         .target(

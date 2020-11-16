@@ -1,0 +1,4 @@
+module cwavelib {
+    umbrella "../wavelib/header"
+    export *
+}

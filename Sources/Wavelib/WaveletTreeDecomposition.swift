@@ -40,7 +40,7 @@ public class WaveletTreeDecomposition: WaveletTransform {
         setWTREEExtension(treeObject, extensionName)
     }
     
-    func nodeLength(at level: Int) -> Int {
+    private func nodeLength(at level: Int) -> Int {
         let level32 = Int32(level)
         let length = getWTREENodelength(treeObject, level32)
         return Int(length)

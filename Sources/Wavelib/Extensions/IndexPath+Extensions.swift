@@ -14,11 +14,7 @@ extension IndexPath {
     
     var x: Int {
         get {
-            if isEmpty {
-                return 0
-            } else {
-                return first!
-            }
+            first ?? 0
         }
         set {
             if isEmpty {
@@ -31,18 +27,56 @@ extension IndexPath {
     
     var y: Int {
         get {
-            if count < 2 {
-                return 0
-            } else {
-                return self[1]
-            }
+            second ?? 0
         }
         set {
-            if count < 2 {
-                append(newValue)
-            } else {
+            if count > 1 {
                 self[1] = newValue
+            } else {
+                append(newValue)
             }
         }
+    }
+}
+
+extension IndexPath {
+    init(rows: Int, cols: Int) {
+        self.init(arrayLiteral: rows, cols)
+    }
+    
+    var rows: Int {
+        get {
+            first ?? 0
+        }
+        set {
+            if isEmpty {
+                append(newValue)
+            } else {
+                self[0] = newValue
+            }
+        }
+    }
+    
+    var cols: Int {
+        get {
+            second ?? 0
+        }
+        set {
+            if count > 1 {
+                self[1] = newValue
+            } else {
+                append(newValue)
+            }
+        }
+    }
+}
+
+extension IndexPath {
+    var second: Element? {
+        guard count > 1 else {
+            return nil
+        }
+        
+        return self[1]
     }
 }

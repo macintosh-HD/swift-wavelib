@@ -16,41 +16,72 @@ import cwavelib
 
 public class Wave {
     
-    public enum WaveType: CustomStringConvertible, CaseIterable {
-        case haar
+    public struct Wavelet {
+        public enum WaveletType: String {
+            case haar
+            case daubechies = "db"
+            case biorthogonal = "bior"
+            case coiflets = "coif"
+            case symmlets = "sym"
+        }
         
-        static func findType(by name: String) -> WaveType? {
-            let onlyName = name.trimmingCharacters(in: CharacterSet.decimalDigits.union(.whitespaces)).lowercased()
+        private static let biorthogonalLevels: [Float] = [1.1, 1.3, 1.5, 2.2, 2.4, 2.6, 2.8, 3.1, 3.3, 3.5, 3.7, 3.9, 4.4, 5.5, 6.8]
+        
+        public static var haar = Wavelet(type: .haar, level: 0)
+        
+        public static func daubechies(_ level: Int) -> Wavelet? {
+            guard 1...15 ~= level else {
+                return nil
+            }
             
-            return allCases.first {
-                $0.name == onlyName
+            return Wavelet(type: .daubechies, level: Float(level))
+        }
+        
+        public static func biorthogonal(_ level: Float) -> Wavelet? {
+            guard biorthogonalLevels.contains(level) else {
+                return nil
+            }
+            
+            return Wavelet(type: .biorthogonal, level: level)
+        }
+        
+        public static func coiflets(_ level: Int) -> Wavelet? {
+            guard 1...5 ~= level else {
+                return nil
+            }
+            
+            return Wavelet(type: .coiflets, level: Float(level))
+        }
+        
+        public static func symmlets(_ level: Int) -> Wavelet? {
+            guard 2...10 ~= level else {
+                return nil
+            }
+            
+            return Wavelet(type: .symmlets, level: Float(level))
+        }
+        
+        let type: WaveletType
+        let level: Float
+        
+        var description: String {
+            switch type {
+            case .haar:
+                return type.rawValue
+            default:
+                return "\(type.rawValue)\(level)"
             }
         }
         
-        var name: String {
-            switch self {
-            case .haar:
-                return "haar"
-            }
-        }
-        
-        public var description: String {
-            switch self {
-            case .haar:
-                return name
-            }
+        private init(type: WaveletType, level: Float) {
+            self.type = type
+            self.level = level
         }
     }
     
     private(set) var waveObject: wave_object
     
-    var type: WaveType? {
-        var wname = waveObject.pointee.wname
-        let nameRaw = [Int8](UnsafeBufferPointer(start: &wname.0, count: MemoryLayout.size(ofValue: wname)))
-        let name = String(cString: nameRaw)
-        
-        return WaveType.findType(by: name)
-    }
+    let wavelet: Wavelet
     
     var filterLength: Int {
         get {
@@ -74,7 +105,7 @@ public class Wave {
         Int(waveObject.pointee.hpr_len)
     }
     
-    var lowPassDecompositionFilter: [Double] {
+    public var lowPassDecompositionFilter: [Double] {
         get {
             (0..<lpDecompositionLength).map { index in
                 waveObject.pointee.lpd[index]
@@ -82,7 +113,7 @@ public class Wave {
         }
     }
     
-    var highPassDecompositionFilter: [Double] {
+    public var highPassDecompositionFilter: [Double] {
         get {
             (0..<hpDecompositionLength).map { index in
                 waveObject.pointee.hpd[index]
@@ -90,7 +121,7 @@ public class Wave {
         }
     }
     
-    var lowPassRecompositionFilter: [Double] {
+    public var lowPassRecompositionFilter: [Double] {
         get {
             (0..<lpRecompositionLength).map { index in
                 waveObject.pointee.lpr[index]
@@ -98,7 +129,7 @@ public class Wave {
         }
     }
     
-    var highPassRecompositionFilter: [Double] {
+    public var highPassRecompositionFilter: [Double] {
         get {
             (0..<hpRecompositionLength).map { index in
                 waveObject.pointee.hpr[index]
@@ -106,15 +137,16 @@ public class Wave {
         }
     }
     
-    public init(type: WaveType) {
-        waveObject = wave_init(type.description)
+    public init(wavelet: Wavelet) {
+        self.wavelet = wavelet
+        waveObject = wave_init(wavelet.description.bytes)
     }
     
     deinit {
         wave_free(waveObject)
     }
     
-    func printSummary() {
+    public func printSummary() {
         wave_summary(waveObject)
     }
     

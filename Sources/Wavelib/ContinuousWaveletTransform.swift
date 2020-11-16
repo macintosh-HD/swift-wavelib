@@ -14,32 +14,32 @@
 import Foundation
 import cwavelib
 
-class ContinuousWaveletTransform {
+public class ContinuousWaveletTransform {
     
-    struct ContinuousWavelet {
+    public struct ContinuousWavelet {
         enum Wavelet: String {
             case morl, paul, dog
         }
         
-        static func morl(parameter: Double) throws -> ContinuousWavelet {
+        static func morl(parameter: Double) throws -> ContinuousWavelet? {
             guard 4...6 ~= parameter else {
-                throw CWTError.invalidParameter
+                return nil
             }
             
             return ContinuousWavelet(wavelet: .morl, parameter: parameter)
         }
         
-        static func paul(parameter: Int = 4) throws -> ContinuousWavelet {
+        static func paul(parameter: Int = 4) throws -> ContinuousWavelet? {
             guard 0...20 ~= parameter else {
-                throw CWTError.invalidParameter
+                return nil
             }
             
             return ContinuousWavelet(wavelet: .paul, parameter: Double(parameter))
         }
         
-        static func dog(parameter: UInt) throws -> ContinuousWavelet {
+        static func dog(parameter: UInt) throws -> ContinuousWavelet? {
             guard parameter % 2 == 0 else {
-                throw CWTError.invalidParameter
+                return nil
             }
             
             return ContinuousWavelet(wavelet: .dog, parameter: Double(parameter))
@@ -54,17 +54,17 @@ class ContinuousWaveletTransform {
         let parameter: Double
     }
     
-    enum ScaleType: String {
+    public enum ScaleType: String {
         case power, linear
     }
 
     enum CWTError: LocalizedError {
-        case invalidParameter, noPower
+        case noPower
     }
     
     private(set) var transformObject: cwt_object
     
-    init(wavelet: ContinuousWavelet, signalLength: Int, samplingRate: Double, totalScales: Int) {
+    public init(wavelet: ContinuousWavelet, signalLength: Int, samplingRate: Double, totalScales: Int) {
         let waveName = wavelet.wavelet.rawValue.bytes
         let signalLength32 = Int32(signalLength)
         let totalScales32 = Int32(totalScales)
@@ -76,7 +76,7 @@ class ContinuousWaveletTransform {
         cwt_free(transformObject)
     }
     
-    func execute(on signal: inout [Double], inverse: Bool = false) {
+    public func execute(on signal: inout [Double], inverse: Bool = false) {
         if inverse {
             icwt(transformObject, &signal)
         } else {
@@ -84,7 +84,7 @@ class ContinuousWaveletTransform {
         }
     }
     
-    func setScales(type: ScaleType, power: Int?, s0: Double, dj: Double) throws {
+    public func setScales(type: ScaleType, power: Int?, s0: Double, dj: Double) throws {
         if type == .power && power == nil {
             throw CWTError.noPower
         }
@@ -95,7 +95,7 @@ class ContinuousWaveletTransform {
         setCWTScales(transformObject, s0, dj, typeName, power32)
     }
     
-    func setScales(vector: [Double], s0: Double, dj: Double) throws {
+    public func setScales(vector: [Double], s0: Double, dj: Double) throws {
         let totalScales32 = Int32(vector.count)
         setCWTScaleVector(transformObject, vector, totalScales32, s0, dj)
     }

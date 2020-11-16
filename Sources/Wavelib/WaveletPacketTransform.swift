@@ -59,7 +59,7 @@ public class WaveletPacketTransform: WaveletTransform {
         setDWPTExtension(packetObject, extensionName)
     }
     
-    func nodeLength(at level: Int) -> Int {
+    private func nodeLength(at level: Int) -> Int {
         let level32 = Int32(level)
         let length32 = getDWPTNodelength(packetObject, level32)
         return Int(length32)

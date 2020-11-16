@@ -15,7 +15,9 @@ let package = Package(
             exclude: [
                 "wavelib/test",
                 "wavelib/unitTests",
-                "CMakeLists.txt",
+                "wavelib/CMakeLists.txt",
+                "wavelib/src/CMakeLists.txt",
+                "wavelib/auxiliary/CMakeLists.txt",
                 "wavelib/COPYRIGHT",
                 "wavelib/appveyor.yml",
                 "wavelib/wavelib-doc.pdf",

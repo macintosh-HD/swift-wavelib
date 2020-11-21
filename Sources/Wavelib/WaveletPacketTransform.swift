@@ -26,6 +26,14 @@ public class WaveletPacketTransform: WaveletTransform {
         let extensionType: Extension
         let entropy: Entropy
         let entropyParameter: Double
+        
+        public init(wavelet: Wave, levels: Int, extensionType: Extension, entropy: Entropy, entropyParameter: Double) {
+            self.wavelet = wavelet
+            self.levels = levels
+            self.extensionType = extensionType
+            self.entropy = entropy
+            self.entropyParameter = entropyParameter
+        }
     }
     
     private(set) var packetObject: wpt_object

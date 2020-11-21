@@ -43,6 +43,14 @@ public class DiscreteWaveletTransform: WaveletTransform {
         let levels: Int
         let extensionType: Extension
         let convolution: ConvolutionMethod
+        
+        public init(wavelet: Wave, method: Method, levels: Int, extensionType: Extension, convolution: ConvolutionMethod) {
+            self.wavelet = wavelet
+            self.method = method
+            self.levels = levels
+            self.extensionType = extensionType
+            self.convolution = convolution
+        }
     }
     
     private(set) var transformObject: wt_object

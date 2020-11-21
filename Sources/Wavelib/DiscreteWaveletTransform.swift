@@ -37,6 +37,14 @@ public class DiscreteWaveletTransform: WaveletTransform {
         }
     }
     
+    public struct DWTExecutionSettings {
+        let wavelet: Wave
+        let method: Method
+        let levels: Int
+        let extensionType: Extension
+        let convolution: ConvolutionMethod
+    }
+    
     private(set) var transformObject: wt_object
     
     let method: Method
@@ -81,6 +89,52 @@ public class DiscreteWaveletTransform: WaveletTransform {
     
     deinit {
         wt_free(transformObject)
+    }
+    
+    public static func execute(on signal: [Double], with settings: DWTExecutionSettings, inverse: Bool = false) -> [Double] {
+        let count = signal.count
+        let dwt = DiscreteWaveletTransform(wave: settings.wavelet, method: settings.method, signalLength: count, decompositionLevels: settings.levels)
+        
+        do {
+            try dwt.setDWTExtension(settings.extensionType)
+            try dwt.setWTConvolution(settings.convolution)
+        } catch {
+            return []
+        }
+        
+        if !inverse {
+            dwt.forward(on: signal)
+            
+            return dwt.output
+        } else {
+            return dwt.inverse()
+        }
+    }
+    
+    public func forward(on signal: [Double]) {
+        switch method {
+        case .dwt:
+            cwavelib.dwt(transformObject, signal)
+        case .swt:
+            swt(transformObject, signal)
+        case .modwt:
+            modwt(transformObject, signal)
+        }
+    }
+    
+    public func inverse() -> [Double] {
+        var output = [Double](repeating: 0, count: signalLength)
+        
+        switch method {
+        case .dwt:
+            idwt(transformObject, &output)
+        case .swt:
+            iswt(transformObject, &output)
+        case .modwt:
+            modwt(transformObject, &output)
+        }
+        
+        return output
     }
     
     public func setDWTExtension(_ extensionType: Extension) throws {

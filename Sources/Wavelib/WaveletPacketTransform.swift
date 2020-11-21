@@ -20,8 +20,17 @@ public class WaveletPacketTransform: WaveletTransform {
         case shannon, threshold, norm, logenergy
     }
     
+    public struct WaveletPacketSettings {
+        let wavelet: Wave
+        let levels: Int
+        let extensionType: Extension
+        let entropy: Entropy
+        let entropyParameter: Double
+    }
+    
     private(set) var packetObject: wpt_object
     private(set) var entropy: Entropy = .shannon
+    private let signalLength: Int
     
     private var outLength: Int {
         Int(packetObject.pointee.outlength)
@@ -33,7 +42,8 @@ public class WaveletPacketTransform: WaveletTransform {
         }
     }
     
-    public init(wave: Wave, signalLength: Int, decompositionLevels: Double) {
+    public init(wave: Wave, signalLength: Int, decompositionLevels: Int) {
+        self.signalLength = signalLength
         let signalLength32 = Int32(signalLength)
         let levels32 = Int32(decompositionLevels)
         
@@ -46,12 +56,31 @@ public class WaveletPacketTransform: WaveletTransform {
         wpt_free(packetObject)
     }
     
-    public func execute(on signal: inout [Double], inverse: Bool = false) {
-        if inverse {
-            idwpt(packetObject, &signal)
+    public static func execute(on signal: [Double], with settings: WaveletPacketSettings, inverse: Bool = false) -> [Double] {
+        let dwpt = WaveletPacketTransform(wave: settings.wavelet, signalLength: signal.count, decompositionLevels: settings.levels)
+        
+        dwpt.set(extension: settings.extensionType)
+        dwpt.set(entropy: settings.entropy, parameter: settings.entropyParameter)
+        
+        if !inverse {
+            dwpt.forward(on: signal)
+            
+            return dwpt.output
         } else {
-            dwpt(packetObject, signal)
+            return dwpt.inverse()
         }
+    }
+    
+    public func forward(on signal: [Double]) {
+        cwavelib.dwpt(packetObject, signal)
+    }
+    
+    public func inverse() -> [Double] {
+        var output = [Double](repeating: 0, count: signalLength)
+        
+        idwpt(packetObject, &output)
+        
+        return output
     }
     
     public func set(extension: Extension) {

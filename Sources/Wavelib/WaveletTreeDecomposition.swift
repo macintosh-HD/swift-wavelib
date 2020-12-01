@@ -21,7 +21,7 @@ public class WaveletTreeDecomposition: WaveletTransform {
     let signalLength: Int
     let decompositionLevels: Int
     
-    var maxIterations: Int {
+    public var maxIterations: Int {
         get {
             Int(treeObject.pointee.MaxIter)
         }
@@ -47,7 +47,7 @@ public class WaveletTreeDecomposition: WaveletTransform {
         }
     }
     
-    var output: [Double] {
+    public var output: [Double] {
         (0..<outlength).map {
             treeObject.pointee.output[$0]
         }

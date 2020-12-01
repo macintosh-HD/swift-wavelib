@@ -18,8 +18,46 @@ public class WaveletTreeDecomposition: WaveletTransform {
     
     private(set) var treeObject: wtree_object
     
+    let signalLength: Int
+    let decompositionLevels: Int
+    
+    var maxIterations: Int {
+        get {
+            Int(treeObject.pointee.MaxIter)
+        }
+        set {
+            guard newValue >= decompositionLevels else {
+                return
+            }
+            
+            let iterations = Int32(newValue)
+            treeObject.pointee.MaxIter = iterations
+        }
+    }
+    
+    private(set) var `extension`: Extension?
+    
+    private var outlength: Int {
+        Int(treeObject.pointee.outlength)
+    }
+    
+    var coefficientsCount: [Int] {
+        (0...decompositionLevels).map {
+            Int(treeObject.pointee.coeflength[$0])
+        }
+    }
+    
+    var output: [Double] {
+        (0..<outlength).map {
+            treeObject.pointee.output[$0]
+        }
+    }
+    
     public init(wave: Wave, signalLength: Int, decompositionLevels: Int) {
+        self.signalLength = signalLength
         let signalLength32 = Int32(signalLength)
+        
+        self.decompositionLevels = decompositionLevels
         let levels32 = Int32(decompositionLevels)
         
         treeObject = wtree_init(wave.waveObject, signalLength32, levels32)
@@ -36,6 +74,7 @@ public class WaveletTreeDecomposition: WaveletTransform {
     }
     
     public func set(extension: Extension) {
+        self.extension = `extension`
         let extensionName = `extension`.rawValue.bytes
         setWTREEExtension(treeObject, extensionName)
     }

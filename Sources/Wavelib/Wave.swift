@@ -139,7 +139,7 @@ public class Wave {
     
     public init(wavelet: Wavelet) {
         self.wavelet = wavelet
-        waveObject = wave_init(wavelet.description.bytes)
+        waveObject = wave_init(wavelet.description)
     }
     
     deinit {
